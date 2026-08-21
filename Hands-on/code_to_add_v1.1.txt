@@ -1,0 +1,126 @@
+Labs code to be added (v1.1):
+-----------------------------
+
+- Lab: blinky
+
+in main.c:
+
+HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+HAL_Delay(100);
+
+- Lab: pwm
+
+in main.c:
+
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+
+
+- Lab: exti
+
+in main.c
+
+uint8_t PC13_flag = 0;
+
+//////////////////////
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+  PC13_flag++;
+  if ( ( PC13_flag & 0x01 ) == 0x01 )
+  {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+  }
+  else
+  {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);        
+  }
+}
+
+- Lab: low power
+
+in main.c:
+
+ /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+    
+    // enter STOP mode
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+    // reconfigure system clock
+    SystemClock_Config();
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+
+
+in stm32g0xx_hal_msp.c:
+
+void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
+{
+
+  if(hrtc->Instance==RTC)
+  {
+  /* USER CODE BEGIN RTC_MspInit 0 */
+
+/* USER CODE END RTC_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_RTC_ENABLE();
+/* RTC interrupt Init */
+    HAL_NVIC_SetPriority(RTC_TAMP_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(RTC_TAMP_IRQn);
+  /* USER CODE BEGIN RTC_MspInit 1 */
+__HAL_RCC_RTCAPB_CLK_ENABLE();
+  /* USER CODE END RTC_MspInit 1 */
+  }
+
+}
+
+
+- Lab: printf
+
+in main.c:
+
+/* USER CODE BEGIN Includes */
+#include <stdio.h>
+/* USER CODE END Includes */
+
+/////////////////////////////
+
+/* USER CODE BEGIN PFP */
+/* Private function prototypes -----------------------------------------------*/
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+/* USER CODE END PFP */
+
+
+////////////////////////////
+
+  while (1)
+  {
+      printf("** Hello World ** \n\r");
+      HAL_Delay(1000);
+  /* USER CODE END WHILE */
+
+/////////////////////////////
+
+      /* USER CODE BEGIN 4 */
+      PUTCHAR_PROTOTYPE
+      {
+           HAL_UART_Transmit(&hlpuart1, (uint8_t *)&ch, 1, 0xFFFF);
+           return ch;
+       }
+       /* USER CODE END 4 */
+
+- Lab: low level driver
+
+in main.c:
+
+LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_5);
+// Delay 100 ms
+LL_mDelay(100);
